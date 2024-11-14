@@ -1,0 +1,4 @@
+# ninja log v5
+10	9174	1731554093239976100	/mnt/g/Projects/Work/MVSOD/models/ops/build/temp.linux-x86_64-cpython-38/mnt/g/Projects/Work/MVSOD/models/ops/src/cpu/ms_deform_attn_cpu.o	11b698fbf5647f1c
+12	20773	1731554104840110200	/mnt/g/Projects/Work/MVSOD/models/ops/build/temp.linux-x86_64-cpython-38/mnt/g/Projects/Work/MVSOD/models/ops/src/cuda/ms_deform_attn_cuda.o	8fc6b3263ed629df
+14	24418	1731554108479097200	/mnt/g/Projects/Work/MVSOD/models/ops/build/temp.linux-x86_64-cpython-38/mnt/g/Projects/Work/MVSOD/models/ops/src/vision.o	ee853fab1cf87e9a

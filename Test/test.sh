@@ -1,0 +1,5 @@
+set -x
+
+GPUS=$1
+RUN_COMMAND=${@:2}
+INPUT_VALUE=$3

@@ -1,0 +1,16 @@
+dict_keys(['categories', 'images', 'annotations', 'videos'])
+>>> categories[0]
+{'id': 1, 'name': 'airplane', 'encode_name': 'n02691156'}
+>>> images[0]
+{'file_name': 'DET/train/ILSVRC2014_train_0000/ILSVRC2014_train_00000663.JPEG', 'height': 362, 'width': 500, 'id': 1, 'frame_id': -1, 'video_id': -1, 'is_vid_train_frame': True}
+>>> images[-1]
+{'file_name': 'VID/train/ILSVRC2015_VID_train_0003/ILSVRC2015_train_01151000/000449.JPEG', 'height': 160, 'width': 284, 'id': 111329, 'frame_id': 449, 'video_id': 3862, 'is_vid_train_frame': True}
+>>> annotations[0]
+{'id': 1, 'video_id': -1, 'image_id': 1, 'category_id': 1, 'instance_id': -1, 'bbox': [1, 90, 496, 271], 'area': 134416, 'iscrowd': False, 'occluded': -1, 'generated': -1}
+>>> annotations[-1]
+{'id': 151986, 'video_id': 3862, 'image_id': 111329, 'category_id': 22, 'instance_id': 7651, 'bbox': [49, 0, 146, 158], 'area': 23068, 'iscrowd': False, 'occluded': False, 'generated': True}
+>>> videos[0]
+{'id': 1, 'name': 'VID/train/ILSVRC2015_VID_train_0000/ILSVRC2015_train_00000000', 'vid_train_frames': [9, 29, 49, 69, 89, 109, 129, 149, 169, 189, 209, 229, 249, 269, 289]}
+>>> videos[-1]
+{'id': 3862, 'name': 'VID/train/ILSVRC2015_VID_train_0003/ILSVRC2015_train_01151000', 'vid_train_frames': [14, 45, 76, 107, 138, 169, 200, 232, 263, 294, 325, 356, 387, 418, 449]}
+>>> 
