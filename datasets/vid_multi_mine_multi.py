@@ -172,8 +172,8 @@ class CocoDetection(TvCocoDetection):
         imgs = []
         coco = self.coco
         img_id = self.ids[idx]
-        ann_ids = coco.getAnnIds(imgIds=img_id)
-        target = coco.loadAnns(ann_ids)
+        ann_ids = coco.getAnnIds(imgIds=img_id)  # 获取图像的标注ID
+        target = coco.loadAnns(ann_ids)  # 获取标注信息
         img_info = coco.loadImgs(img_id)[0]
         path = img_info['file_name']
         video_id = img_info['video_id']

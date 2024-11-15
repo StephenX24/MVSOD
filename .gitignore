@@ -1,1 +1,4 @@
 *__pycache__*
+exps/
+data/bbox_check
+*.pth
