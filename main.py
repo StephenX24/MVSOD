@@ -23,6 +23,7 @@ import datasets
 import datasets.samplers as samplers
 from datasets import build_dataset, get_coco_api_from_dataset
 from models import build_model
+from adan_pytorch import Adan
 
 
 def get_args_parser():
@@ -220,12 +221,14 @@ def main(args):
             "lr": args.lr * args.lr_linear_proj_mult,
         }
     ]
-    if args.sgd:
-        optimizer = torch.optim.SGD(param_dicts, lr=args.lr, momentum=0.9,
-                                    weight_decay=args.weight_decay)
-    else:
-        optimizer = torch.optim.AdamW(param_dicts, lr=args.lr,
-                                      weight_decay=args.weight_decay)
+    # if args.sgd:
+    #     optimizer = torch.optim.SGD(param_dicts, lr=args.lr, momentum=0.9,
+    #                                 weight_decay=args.weight_decay)
+    # else:
+    #     optimizer = torch.optim.AdamW(param_dicts, lr=args.lr,
+    #                                   weight_decay=args.weight_decay)
+    # Adan
+    optimizer = Adan(param_dicts, lr=args.lr, betas = (0.02, 0.08, 0.01), weight_decay = 0.02)
     print(args.lr_drop_epochs)
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, args.lr_drop_epochs)
 
