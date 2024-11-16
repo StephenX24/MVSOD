@@ -2,3 +2,6 @@
 exps/
 data/bbox_check
 *.pth
+models/ops/build/
+models/ops/dist/
+models/ops/MultiScaleDeformableAttention.egg-info/
