@@ -5,3 +5,4 @@ data/bbox_check
 models/ops/build/
 models/ops/dist/
 models/ops/MultiScaleDeformableAttention.egg-info/
+data/vid
