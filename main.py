@@ -52,6 +52,7 @@ def get_args_parser():
     # Model parameters
     parser.add_argument('--frozen_weights', type=str, default=None,
                         help="Path to the pretrained model. If set, only the mask head will be trained")
+    # parser.add_argument('--pretrained', default=None, help='resume from checkpoint')
 
     # * Backbone
     parser.add_argument('--backbone', default='resnet50', type=str,
@@ -63,7 +64,7 @@ def get_args_parser():
     parser.add_argument('--position_embedding_scale', default=2 * np.pi, type=float,
                         help="position / size * scale")
     parser.add_argument('--num_feature_levels', default=4, type=int, help='number of feature levels')
-
+    # parser.add_argument('--checkpoint', default=False, action='store_true')
 
     # * Transformer
     parser.add_argument('--enc_layers', default=6, type=int,
@@ -131,6 +132,7 @@ def get_args_parser():
     parser.add_argument('--eval', action='store_true')
     parser.add_argument('--num_workers', default=0, type=int)
     parser.add_argument('--cache_mode', default=False, action='store_true', help='whether to cache images on memory')
+    parser.add_argument('--no_aug_epoch', default=10, type=int, help='the epoch to stop data augmentation')
 
     return parser
 
@@ -202,8 +204,8 @@ def main(args):
                 break
         return out
 
-    for n, p in model_without_ddp.named_parameters():
-        print(n)
+    # for n, p in model_without_ddp.named_parameters():
+    #     print(n)
 
     param_dicts = [
         {
@@ -230,7 +232,8 @@ def main(args):
     # Adan
     optimizer = Adan(param_dicts, lr=args.lr, betas = (0.02, 0.08, 0.01), weight_decay = 0.02)
     print(args.lr_drop_epochs)
-    lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, args.lr_drop_epochs)
+    # lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, args.lr_drop_epochs)
+    lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-6)
 
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)
@@ -288,7 +291,18 @@ def main(args):
 
     print("Start training")
     start_time = time.time()
+    only_once = True
     for epoch in range(args.start_epoch, args.epochs):
+        if only_once and (epoch + 1) >= args.no_aug_epoch:  # 关闭数据增强，只保留 resize
+            dataset_train = build_dataset(image_set='train_vid_no_aug', args=args)
+            sampler_train = torch.utils.data.RandomSampler(dataset_train)
+            batch_sampler_train = torch.utils.data.BatchSampler(
+                                        sampler_train, args.batch_size, drop_last=True)
+            data_loader_train = DataLoader(dataset_train, batch_sampler=batch_sampler_train,
+                                        collate_fn=utils.collate_fn, num_workers=args.num_workers,
+                                        pin_memory=True)
+            only_once = False 
+
         if args.distributed:
             sampler_train.set_epoch(epoch)
         train_stats = train_one_epoch(

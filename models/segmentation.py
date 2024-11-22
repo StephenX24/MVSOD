@@ -220,6 +220,25 @@ def sigmoid_focal_loss(inputs, targets, num_boxes, alpha: float = 0.25, gamma: f
 
     return loss.mean(1).sum() / num_boxes
 
+def focal_iou_loss(inputs, targets, num_boxes, alpha: float = 0.75, gamma: float = 2):
+    inputs = torch.nn.Sigmoid()(inputs)
+    inputs = 0.999 * (inputs - 0.5) + 0.5
+    BCE_loss = nn.BCELoss(reduction='none')(inputs, targets)
+    intersection = torch.mul(inputs, targets)
+    smooth = 1
+
+    IoU = (intersection.sum() + smooth) / (inputs.sum() + targets.sum() - intersection.sum() + smooth)
+    gamma = gamma
+
+    pt = torch.exp(-BCE_loss)
+    F_loss =  torch.mul(((1-pt) ** gamma) ,BCE_loss)
+    at = targets*alpha+(1-targets)*(1-alpha)
+    F_loss = (1-IoU)*(F_loss)**(IoU*0.5+0.5)
+    F_loss_map = at * F_loss
+    # F_loss_sum = F_loss_map.sum()
+
+    return F_loss_map.mean(1).sum() / num_boxes
+
 
 class PostProcessSegm(nn.Module):
     def __init__(self, threshold=0.5):

@@ -23,7 +23,7 @@ from util.misc_multi import (NestedTensor, nested_tensor_from_tensor_list,
 from .backbone_multi import build_backbone
 from .matcher import build_matcher
 from .segmentation import (DETRsegm, PostProcessPanoptic, PostProcessSegm,
-                           dice_loss, sigmoid_focal_loss)
+                           dice_loss, sigmoid_focal_loss, focal_iou_loss)
 from .deformable_transformer_multi import build_deforamble_transformer
 import copy
 
@@ -242,6 +242,7 @@ class SetCriterion(nn.Module):
 
         target_classes_onehot = target_classes_onehot[:,:,:-1]
         loss_ce = sigmoid_focal_loss(src_logits, target_classes_onehot, num_boxes, alpha=self.focal_alpha, gamma=2) * src_logits.shape[1]
+        # loss_ce = focal_iou_loss(src_logits, target_classes_onehot, num_boxes, alpha=self.focal_alpha, gamma=2) * src_logits.shape[1]
         losses = {'loss_ce': loss_ce}
 
         if log:
@@ -309,6 +310,7 @@ class SetCriterion(nn.Module):
 
         losses = {
             "loss_mask": sigmoid_focal_loss(src_masks, target_masks, num_boxes),
+            # "loss_mask": focal_iou_loss(src_masks, target_masks, num_boxes),
             "loss_dice": dice_loss(src_masks, target_masks, num_boxes),
         }
         return losses
@@ -448,7 +450,7 @@ class MLP(nn.Module):
 
 
 def build(args):
-    num_classes = 31  ### 這裡改，還是用 31
+    num_classes = 2
     device = torch.device(args.device)
 
     backbone = build_backbone(args)

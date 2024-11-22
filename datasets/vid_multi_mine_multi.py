@@ -219,8 +219,8 @@ class CocoDetection(TvCocoDetection):
                 ref_ann_ids = coco.getAnnIds(imgIds=ref_img_id)
                 ref_img_info = coco.loadImgs(ref_img_id)[0]
                 ref_img_path = ref_img_info['file_name']
-                ref_rgb_img, ref_ir_img = self.get_image(ref_img_path)
-                imgs.append((ref_rgb_img, ref_ir_img))
+                ref_rgb_img, ref_ir_img = self.get_image(ref_img_path)  # ref_rgb_img: <PIL.Image.Image image mode=RGB size=640x512>
+                imgs.append((ref_rgb_img, ref_ir_img))  # if num_ref_frames is 14, then len(imgs) is 15
 
         if self._transforms is not None:
             rgb_imgs = [v[0] for v in imgs]
@@ -229,8 +229,9 @@ class CocoDetection(TvCocoDetection):
             rgb_imgs, target = self._transforms(rgb_imgs, target) 
             ir_imgs, _ = self._transforms(ir_imgs, target_copy) 
         
-        imgs = rgb_imgs + ir_imgs
-        return  torch.cat(imgs, dim=0),  target
+        # target.keys(): dict_keys(['boxes', 'labels', 'image_id', 'video_id', 'frame_id', 'area', 'iscrowd', 'orig_size', 'size'])
+        imgs = rgb_imgs + ir_imgs  # len(imgs): 30
+        return  torch.cat(imgs, dim=0),  target  # torch.cat(imgs, dim=0).shape: torch.Size([90, H, W]), 90=30*3
 
     
 def convert_coco_poly_to_mask(segmentations, height, width):
@@ -332,9 +333,19 @@ def make_coco_transforms(image_set):
     scales = [480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800]
 
     if image_set == 'train_vid' or image_set == "train_det" or image_set == "train_joint":
+        print("there's data augmentation!")
         return T.Compose([
             T.RandomHorizontalFlip(),
+            T.RandomVerticalFlip(),  # 垂直翻转
+            T.PhotometricDistort(),
             T.RandomResize([600], max_size=1000),
+            normalize,
+        ])
+    
+    if image_set == 'train_vid_no_aug':
+        print("there's no data augmentation!")
+        return T.Compose([
+            T.RandomResize([600], max_size=1000),  # 後面也考慮關掉
             normalize,
         ])
 
@@ -354,6 +365,7 @@ def build(image_set, args):
     PATHS = {
         "train_vid": [(root / "Data" , root / "annotations" / 'sky_data_vid_train.json')],
         "val": [(root / "Data" , root / "annotations" / 'sky_data_vid_val.json')],
+        "train_vid_no_aug": [(root / "Data" , root / "annotations" / 'sky_data_vid_train.json')],
     }
     datasets = []
     for (img_folder, ann_file) in PATHS[image_set]:

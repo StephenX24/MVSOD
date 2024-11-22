@@ -98,7 +98,7 @@ def hflip(clip, target):
     
     return flipped_image, target
 
-def vflip(image,target):
+def vflip(clip, target):
     flipped_image = []
     for image in clip:
         flipped_image.append(F.vflip(image))
